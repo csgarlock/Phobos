@@ -38,9 +38,25 @@ class Board:
 			pass
 
 		for piece in self.pieces:
-			pos = piece.get_pos()
-			self.board_arr[pos[1]][pos[0]] = piece
+			position = piece.get_pos()
+			self.board_arr[position[1]][position[0]] = piece
 
-	def blit_pieces(self, screen):
+	def get_piece_at(self, pos):
+		return self.board_arr[pos[1]][pos[0]]
+
+	def try_move_piece(self, source, des, piece):
+		piece = self.board_arr[source[1]][source[0]]
+		self.board_arr[source[1]][source[0]] = None
+		piece.move(des)
+		self.board_arr[des[1]][des[0]] = piece
+
+	def blit_pieces(self, screen, mouse_pos, held_piece):
 		for piece in self.pieces:
-			screen.blit(piece.get_image(), piece.get_rect())
+			if (piece is held_piece):
+				pass
+			else:
+				screen.blit(piece.get_image(), piece.get_rect())
+		if (held_piece is not None):
+			rect = pygame.Rect(0, 0, 80, 80)
+			rect.center = (mouse_pos[0], mouse_pos[1])
+			screen.blit(held_piece.get_image(), rect)

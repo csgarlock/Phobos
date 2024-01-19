@@ -26,6 +26,7 @@ class Piece:
 				self.image = piece_sheet.image_at(piece_locs[piece_type], chroma_key)
 			else:
 				self.image = piece_sheet.image_at(piece_locs[piece_type+6], chroma_key)
+			self.held = False
 
 	def __str__(self):
 		color = "White" if self.is_white else "Black"
@@ -43,6 +44,9 @@ class Piece:
 		else:
 			piece = "Pawn"
 		return color + " " + piece
+
+	def move(self, des):
+		self.position = des
 
 	def get_pos(self):
 		return self.position
