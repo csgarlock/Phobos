@@ -1,6 +1,6 @@
 import pygame
 import spritesheet
-from piecetype import PieceType
+from constants.piecetype import PieceType
 
 class Piece:
 
@@ -45,6 +45,13 @@ class Piece:
 			piece = "Pawn"
 		return color + " " + piece
 
+	def __eq__(self, other):
+		if ((self.piece_type != other.piece_type) or (self.is_white != other.is_white)):
+			return False
+		if ((self.position[0] != other.position[0]) or ([self.position[1]] != self.position[1])):
+			return False
+		return True
+
 	def move(self, des):
 		self.position = des
 
@@ -57,4 +64,7 @@ class Piece:
 
 	def get_image(self):
 		return self.image
+
+	def get_piece_type(self):
+		return (self.piece_type, self.is_white)
 

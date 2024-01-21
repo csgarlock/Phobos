@@ -1,9 +1,11 @@
 import sys, pygame
 import math
 import spritesheet
-from piecetype import PieceType
+from constants.piecetype import PieceType
+from constants.directions import Directions
 from piece import Piece
 from board import Board
+from move import Move
 
 def main():
 	pygame.init()
@@ -41,7 +43,8 @@ def main():
 				if (event.button == 1 and held_piece is not None):
 					mouse_pos = event.pos
 					move_des_pos = loc_to_pos(event.pos)
-					board.try_move_piece(move_source_pos, move_des_pos, held_piece)
+					board.try_move_piece(Move(held_piece, move_source_pos, move_des_pos))
+					print(Move(held_piece, move_source_pos, move_des_pos))
 					held_piece = None
 
 			if (event.type == pygame.QUIT):
