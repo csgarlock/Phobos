@@ -3,7 +3,7 @@ import math
 import spritesheet
 from constants.piecetype import PieceType
 from constants.directions import Directions
-from piece import Piece
+from piece import *
 from board import Board
 from move import Move
 

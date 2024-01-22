@@ -1,8 +1,10 @@
 import pygame
 import spritesheet
 from constants.piecetype import PieceType
+from constants.directions import Directions
 
-class Piece:
+
+class Piece():
 
 	def setup_sprites():
 		global chroma_key
@@ -16,10 +18,12 @@ class Piece:
 		(0, 0, 80, 80), (80, 0, 80, 80), (160, 0, 80, 80), (240, 0, 80, 80), (320, 0, 80, 80), (400, 0, 80, 80),
 		(0, 80, 80, 80), (80, 80, 80, 80), (160, 80, 80, 80), (240, 80, 80, 80), (320, 80, 80, 80), (400, 80, 80, 80)]
 
-	def __init__(self, piece_type, is_white, position, graphical=True):
+	def __init__(self, piece_type, is_white, position, graphical=True, move_vectors = [], move_length = -1):
 		self.piece_type = piece_type
 		self.position = position
 		self.is_white = is_white
+		self.move_vectors = move_vectors
+		self.move_length = move_length
 		if (graphical):
 			self.rect = pygame.Rect(position[0] * 80, position[1] * 80, 80, 80)
 			if (is_white):
@@ -53,7 +57,13 @@ class Piece:
 		return True
 
 	def move(self, des):
-		self.position = des
+		self.position = [des[0], des[1]]
+
+	def get_move_vectors(self):
+		return self.move_vectors
+
+	def get_move_length(self):
+		return self.move_length
 
 	def get_pos(self):
 		return self.position
@@ -68,3 +78,88 @@ class Piece:
 	def get_piece_type(self):
 		return (self.piece_type, self.is_white)
 
+
+class King(Piece):
+
+	def __init__(self, is_white, position, graphical=True):
+		move_vectors = [
+			Directions.UP, 
+			Directions.UP_RIGHT,
+			Directions.RIGHT,
+			Directions.DOWN_RIGHT,
+			Directions.DOWN,
+			Directions.DOWN_LEFT,
+			Directions.LEFT,
+			Directions.UP_LEFT
+		]
+		move_length = 1
+		super().__init__(PieceType.KING.value, is_white, position, graphical, move_vectors, move_length)
+
+class Queen(Piece):
+
+	def __init__(self, is_white, position, graphical=True):
+		move_vectors = [
+			Directions.UP, 
+			Directions.UP_RIGHT,
+			Directions.RIGHT,
+			Directions.DOWN_RIGHT,
+			Directions.DOWN,
+			Directions.DOWN_LEFT,
+			Directions.LEFT,
+			Directions.UP_LEFT
+		]
+		move_length = -1
+		super().__init__(PieceType.QUEEN.value, is_white, position, graphical, move_vectors, move_length)
+
+class Bishop(Piece):
+
+	def __init__(self, is_white, position, graphical=True):
+		move_vectors = [ 
+			Directions.UP_RIGHT,
+			Directions.DOWN_RIGHT,
+			Directions.DOWN_LEFT,
+			Directions.UP_LEFT
+		]
+		move_length = -1
+		super().__init__(PieceType.BISHOP.value, is_white, position, graphical, move_vectors, move_length)
+
+class Rook(Piece):
+
+	def __init__(self, is_white, position, graphical=True):
+		move_vectors = [ 
+			Directions.UP,
+			Directions.RIGHT,
+			Directions.DOWN,
+			Directions.LEFT,
+		]
+		move_length = -1
+		super().__init__(PieceType.ROOK.value, is_white, position, graphical, move_vectors, move_length)
+
+class Knight(Piece):
+
+	def __init__(self, is_white, position, graphical=True):
+		move_vectors = Directions.KNIGHT_VECTORS
+		move_length = 1
+		super().__init__(PieceType.KNIGHT.value, is_white, position, graphical, move_vectors, move_length)
+
+class Pawn(Piece):
+
+	def __init__(self, is_white, position, graphical=True):
+		self.has_moved = False
+		move_vectors = []
+		if (is_white):
+			move_vectors = [Directions.UP]
+		else :
+			move_length = [Directions.DOWN]
+		move_length = 2
+		super().__init__(PieceType.PAWN.value, is_white, position, graphical, move_vectors, move_length)
+
+	def get_has_moved(self):
+		return self.has_moved
+
+	def move(self, des):
+		self.has_moved = False
+		self.move_length = 1
+		super().move(des)
+
+	def get_move_length(self):

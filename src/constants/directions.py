@@ -8,3 +8,5 @@ class Directions:
 	DOWN_RIGHT = (1, 1)
 	DOWN_LEFT = (-1, 1)
 	UP_LEFT = (-1, -1)
+
+	KNIGHT_VECTORS = [(1, -2), (2, -1), (2, 1), (1, 2), (-1, 2), (-2, 1), (-2, -1), (-1, -2)]

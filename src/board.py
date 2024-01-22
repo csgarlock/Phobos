@@ -1,7 +1,7 @@
 import sys, pygame
 from constants.piecetype import PieceType
 from constants.directions import Directions
-from piece import Piece
+from piece import *
 from move import Move
 
 
@@ -12,30 +12,30 @@ class Board:
 		self.board_arr = [[None for i in range(8)] for j in range(8)]
 		if (starting):
 			#Fill the default starting board
-			self.pieces.append(Piece(PieceType.ROOK.value, False, [0, 0]))
-			self.pieces.append(Piece(PieceType.ROOK.value, False, [7, 0]))
-			self.pieces.append(Piece(PieceType.ROOK.value, True, [0, 7]))
-			self.pieces.append(Piece(PieceType.ROOK.value, True, [7, 7]))
+			self.pieces.append(Rook(False, [0, 0]))
+			self.pieces.append(Rook(False, [7, 0]))
+			self.pieces.append(Rook(True, [0, 7]))
+			self.pieces.append(Rook(True, [7, 7]))
 
-			self.pieces.append(Piece(PieceType.KNIGHT.value, False, [1, 0]))
-			self.pieces.append(Piece(PieceType.KNIGHT.value, False, [6, 0]))
-			self.pieces.append(Piece(PieceType.KNIGHT.value, True, [1, 7]))
-			self.pieces.append(Piece(PieceType.KNIGHT.value, True, [6, 7]))
+			self.pieces.append(Knight(False, [1, 0]))
+			self.pieces.append(Knight(False, [6, 0]))
+			self.pieces.append(Knight(True, [1, 7]))
+			self.pieces.append(Knight(True, [6, 7]))
 
-			self.pieces.append(Piece(PieceType.BISHOP.value, False, [2, 0]))
-			self.pieces.append(Piece(PieceType.BISHOP.value, False, [5, 0]))
-			self.pieces.append(Piece(PieceType.BISHOP.value, True, [2, 7]))
-			self.pieces.append(Piece(PieceType.BISHOP.value, True, [5, 7]))
+			self.pieces.append(Bishop(False, [2, 0]))
+			self.pieces.append(Bishop(False, [5, 0]))
+			self.pieces.append(Bishop(True, [2, 7]))
+			self.pieces.append(Bishop(True, [5, 7]))
 
-			self.pieces.append(Piece(PieceType.QUEEN.value, False, [3, 0]))
-			self.pieces.append(Piece(PieceType.QUEEN.value, True, [3, 7]))
+			self.pieces.append(Queen(False, [3, 0]))
+			self.pieces.append(Queen(True, [3, 7]))
 
-			self.pieces.append(Piece(PieceType.KING.value, False, [4, 0]))
-			self.pieces.append(Piece(PieceType.KING.value, True, [4, 7]))
+			self.pieces.append(King(False, [4, 0]))
+			self.pieces.append(King(True, [4, 7]))
 
 			for i in range(0, 8):
-				self.pieces.append(Piece(PieceType.PAWN.value, False, [i, 1]))
-				self.pieces.append(Piece(PieceType.PAWN.value, True, [i, 6]))
+				self.pieces.append(Pawn(False, [i, 1]))
+				self.pieces.append(Pawn(True, [i, 6]))
 		else:
 			pass
 
@@ -58,26 +58,11 @@ class Board:
 
 	def get_piece_moves(self, piece):
 		moves = []
-		piece_type, is_white = piece.get_piece_type()
-		if (piece_type == PieceType.PAWN.value):
-			pass
+		move_vectors = piece.get_move_vectors()
+		move_length = piece.get_move_length()
+		for direction in move_vectors:
+			ray = cast_ray(piece, direction, move_length)
 
-		if (piece_type == PieceType.KNIGHT.value):
-			pass
-
-		if (piece_type == PieceType.BISHOP.value):
-			pass
-
-		if (piece_type == PieceType.QUEEN.value):
-			pass
-
-		if (piece_type == PieceType.ROOK.value):
-			pass
-
-		if (piece_type == PieceType.KING.value):
-			pass
-
-		return []
 
 	def try_move_piece(self, move):
 		piece = move.get_piece()
@@ -87,15 +72,20 @@ class Board:
 		piece.move(des)
 		self.board_arr[des[1]][des[0]] = piece
 
-	def cast_ray(self, piece, direction):
+	def cast_ray(self, piece, direction, move_length):
 		d_x, d_y = direction
 		empty_positions = []
 		current_position = [piece.get_pos()[0] + d_x, piece.get_pos()[1] + d_y]
-		while (self.board_arr[current_position[1]][current_position[0]] is None):
+		while (self.board_arr[current_position[1]][current_position[0]] is None and in_bounds(current_position)):
 			empty_positions.append[current_position[0], current_position[1]]
 			current_position[0] += d_x
 			current_position[1] += d_y
 		return (empty_positions, self.board_arr[current_position[1]][current_position[0]])
+
+	def in_bounds(position):
+		if(position[0] > 7 or position[0] < 0 or position[1] > 7 or position[1] < 0):
+			return False
+		return True
 
 
 	def blit_pieces(self, screen, mouse_pos, held_piece):

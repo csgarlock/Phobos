@@ -2,16 +2,19 @@ from piece import Piece
 
 class Move:
 
-	def __init__(self, piece, source, des):
+	def __init__(self, piece, source, des, des_piece = None):
 		self.piece = piece
 		self.source = source
 		self.des = des
+		self.des_piece = None
 
 	def __str__(self):
 		return (str(self.piece) + " from " + str(self.source) + " to " + str(self.des))
 
 	def __eq__(self, other):
 		if (self.piece != other.piece):
+			return False
+		if(self.des_piece != other.des_piece):
 			return False
 		if ((self.source[0] != other.source[0]) or ([self.source[1]] != self.source[1])):
 			return False
