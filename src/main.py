@@ -24,6 +24,10 @@ def main():
 	mouse_pos = [0, 0]
 	move_source_pos = [0, 0]
 
+	move_check_1 = Move(board.get_piece_at((0, 0)), [0, 0], [0, 6], board.get_piece_at((0, 6)))
+	move_check_2 = Move(board.get_piece_at((0, 0)), [0, 0], [0, 6], board.get_piece_at((0, 6)))
+	print (move_check_1 == move_check_2)
+
 	while True:
 		for event in pygame.event.get():
 			if (event.type == pygame.MOUSEMOTION):
@@ -36,6 +40,7 @@ def main():
 					piece_at_pos = board.get_piece_at(move_source_pos)
 					if (piece_at_pos is not None):
 						held_piece = piece_at_pos
+						piece_moves = board.get_piece_moves(held_piece)
 					else:
 						held_piece = None
 
@@ -43,7 +48,8 @@ def main():
 				if (event.button == 1 and held_piece is not None):
 					mouse_pos = event.pos
 					move_des_pos = loc_to_pos(event.pos)
-					board.try_move_piece(Move(held_piece, move_source_pos, move_des_pos))
+					move_des_piece = board.get_piece_at(move_des_pos)
+					board.try_move_piece(Move(held_piece, move_source_pos, move_des_pos, move_des_piece))
 					print(Move(held_piece, move_source_pos, move_des_pos))
 					held_piece = None
 

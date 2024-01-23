@@ -50,9 +50,11 @@ class Piece():
 		return color + " " + piece
 
 	def __eq__(self, other):
+		if not isinstance(other, Piece):
+			return False
 		if ((self.piece_type != other.piece_type) or (self.is_white != other.is_white)):
 			return False
-		if ((self.position[0] != other.position[0]) or ([self.position[1]] != self.position[1])):
+		if ((self.position[0] != other.position[0]) or (self.position[1] != other.position[1])):
 			return False
 		return True
 
@@ -65,6 +67,12 @@ class Piece():
 	def get_move_length(self):
 		return self.move_length
 
+	def on_same_team(self, other):
+		if ((self.is_white and other.get_is_white()) or (not self.is_white and not other.get_is_white())):
+			return True
+		else:
+			return False
+
 	def get_pos(self):
 		return self.position
 
@@ -74,6 +82,9 @@ class Piece():
 
 	def get_image(self):
 		return self.image
+
+	def get_is_white(self):
+		return self.is_white
 
 	def get_piece_type(self):
 		return (self.piece_type, self.is_white)
@@ -150,7 +161,7 @@ class Pawn(Piece):
 		if (is_white):
 			move_vectors = [Directions.UP]
 		else :
-			move_length = [Directions.DOWN]
+			move_vectors = [Directions.DOWN]
 		move_length = 2
 		super().__init__(PieceType.PAWN.value, is_white, position, graphical, move_vectors, move_length)
 
@@ -158,8 +169,9 @@ class Pawn(Piece):
 		return self.has_moved
 
 	def move(self, des):
-		self.has_moved = False
+		self.has_moved = True
 		self.move_length = 1
 		super().move(des)
 
 	def get_move_length(self):
+		return self.move_length

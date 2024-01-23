@@ -49,6 +49,19 @@ class Board:
 	def get_piece_at(self, pos):
 		return self.board_arr[pos[1]][pos[0]]
 
+	def try_move_piece(self, move):
+		for valid_move in self.get_all_moves():
+			print(valid_move)
+			if (move == valid_move):
+				piece = move.get_piece()
+				source = move.get_source()
+				self.board_arr[source[1]][source[0]] = None
+				des = move.get_des()
+				piece.move(des)
+				self.board_arr[des[1]][des[0]] = piece
+				self.moves = []
+				self.generated_moves = False
+
 	def get_all_moves(self):
 		if (not self.generated_moves):
 			for piece in self.pieces:
@@ -57,32 +70,41 @@ class Board:
 		return self.moves
 
 	def get_piece_moves(self, piece):
+		piece_pos = piece.get_pos()
 		moves = []
 		move_vectors = piece.get_move_vectors()
 		move_length = piece.get_move_length()
 		for direction in move_vectors:
-			ray = cast_ray(piece, direction, move_length)
-
-
-	def try_move_piece(self, move):
-		piece = move.get_piece()
-		source = move.get_source()
-		self.board_arr[source[1]][source[0]] = None
-		des = move.get_des()
-		piece.move(des)
-		self.board_arr[des[1]][des[0]] = piece
+			ray = self.cast_ray(piece, direction, move_length)
+			found_empties, des_piece = ray
+			for empty in found_empties:
+				moves.append(Move(piece, piece_pos, empty))
+			if (des_piece is not None):
+				if (piece.on_same_team(des_piece) == False):	
+					moves.append(Move(piece, piece_pos, des_piece.get_pos(), des_piece))
+		return moves
 
 	def cast_ray(self, piece, direction, move_length):
 		d_x, d_y = direction
 		empty_positions = []
 		current_position = [piece.get_pos()[0] + d_x, piece.get_pos()[1] + d_y]
-		while (self.board_arr[current_position[1]][current_position[0]] is None and in_bounds(current_position)):
-			empty_positions.append[current_position[0], current_position[1]]
-			current_position[0] += d_x
-			current_position[1] += d_y
+		distance_traveled = 0
+		if (self.in_bounds(current_position) == True):
+			while (self.board_arr[current_position[1]][current_position[0]] is None):
+				distance_traveled += 1
+				empty_positions.append([current_position[0], current_position[1]])
+				current_position[0] += d_x
+				current_position[1] += d_y
+				if (distance_traveled == move_length):
+					return (empty_positions, None)
+				if (self.in_bounds(current_position) == False):
+					return (empty_positions, None)
+		else:
+			return (empty_positions, None)
 		return (empty_positions, self.board_arr[current_position[1]][current_position[0]])
 
-	def in_bounds(position):
+
+	def in_bounds(self, position):
 		if(position[0] > 7 or position[0] < 0 or position[1] > 7 or position[1] < 0):
 			return False
 		return True
