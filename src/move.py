@@ -1,12 +1,15 @@
 from piece import Piece
+from constants.specialmoves import SpecialMoves
 
 class Move:
 
-	def __init__(self, piece, source, des, des_piece = None):
+	def __init__(self, piece, source, des, des_piece = None, special_move = SpecialMoves.NONE.value, special_piece = None):
 		self.piece = piece
 		self.source = source
 		self.des = des
 		self.des_piece = des_piece
+		self.special_move = special_move
+		self.special_piece = special_piece
 
 	def __str__(self):
 		if (self.des_piece is not None):
@@ -33,5 +36,15 @@ class Move:
 
 	def get_des(self):
 		return self.des
+
+	def get_des_piece(self):
+		return self.des_piece
+
+	def get_special_move(self):
+		return self.special_move
+
+	def get_special_piece(self):
+		return self.special_piece
+
 
 

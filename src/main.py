@@ -24,10 +24,6 @@ def main():
 	mouse_pos = [0, 0]
 	move_source_pos = [0, 0]
 
-	move_check_1 = Move(board.get_piece_at((0, 0)), [0, 0], [0, 6], board.get_piece_at((0, 6)))
-	move_check_2 = Move(board.get_piece_at((0, 0)), [0, 0], [0, 6], board.get_piece_at((0, 6)))
-	print (move_check_1 == move_check_2)
-
 	while True:
 		for event in pygame.event.get():
 			if (event.type == pygame.MOUSEMOTION):
@@ -39,8 +35,9 @@ def main():
 					move_source_pos = loc_to_pos(event.pos)
 					piece_at_pos = board.get_piece_at(move_source_pos)
 					if (piece_at_pos is not None):
-						held_piece = piece_at_pos
-						piece_moves = board.get_piece_moves(held_piece)
+						if (piece_at_pos.get_team() == board.get_turn()):
+							held_piece = piece_at_pos
+							piece_moves = board.get_piece_moves(held_piece)
 					else:
 						held_piece = None
 

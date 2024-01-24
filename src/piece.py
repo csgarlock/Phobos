@@ -18,22 +18,22 @@ class Piece():
 		(0, 0, 80, 80), (80, 0, 80, 80), (160, 0, 80, 80), (240, 0, 80, 80), (320, 0, 80, 80), (400, 0, 80, 80),
 		(0, 80, 80, 80), (80, 80, 80, 80), (160, 80, 80, 80), (240, 80, 80, 80), (320, 80, 80, 80), (400, 80, 80, 80)]
 
-	def __init__(self, piece_type, is_white, position, graphical=True, move_vectors = [], move_length = -1):
+	def __init__(self, piece_type, team, position, graphical=True, move_vectors = [], move_length = -1):
 		self.piece_type = piece_type
 		self.position = position
-		self.is_white = is_white
+		self.team = team
 		self.move_vectors = move_vectors
 		self.move_length = move_length
 		if (graphical):
 			self.rect = pygame.Rect(position[0] * 80, position[1] * 80, 80, 80)
-			if (is_white):
+			if (self.team == PieceType.WHITE.value):
 				self.image = piece_sheet.image_at(piece_locs[piece_type], chroma_key)
 			else:
 				self.image = piece_sheet.image_at(piece_locs[piece_type+6], chroma_key)
 			self.held = False
 
 	def __str__(self):
-		color = "White" if self.is_white else "Black"
+		color = "White" if self.team == PieceType.WHITE.value else "Black"
 		piece = ""
 		if(self.piece_type == 0):
 			piece = "King"
@@ -52,7 +52,7 @@ class Piece():
 	def __eq__(self, other):
 		if not isinstance(other, Piece):
 			return False
-		if ((self.piece_type != other.piece_type) or (self.is_white != other.is_white)):
+		if ((self.piece_type != other.piece_type) or (self.team != other.get_team())):
 			return False
 		if ((self.position[0] != other.position[0]) or (self.position[1] != other.position[1])):
 			return False
@@ -68,10 +68,7 @@ class Piece():
 		return self.move_length
 
 	def on_same_team(self, other):
-		if ((self.is_white and other.get_is_white()) or (not self.is_white and not other.get_is_white())):
-			return True
-		else:
-			return False
+		return self.team == other.get_team()
 
 	def get_pos(self):
 		return self.position
@@ -83,16 +80,17 @@ class Piece():
 	def get_image(self):
 		return self.image
 
-	def get_is_white(self):
-		return self.is_white
+	def get_team(self):
+		return self.team
 
 	def get_piece_type(self):
-		return (self.piece_type, self.is_white)
+		return (self.piece_type, self.team)
 
 
 class King(Piece):
 
-	def __init__(self, is_white, position, graphical=True):
+	def __init__(self, team, position, graphical=True):
+		self.has_moved = False
 		move_vectors = [
 			Directions.UP, 
 			Directions.UP_RIGHT,
@@ -104,11 +102,18 @@ class King(Piece):
 			Directions.UP_LEFT
 		]
 		move_length = 1
-		super().__init__(PieceType.KING.value, is_white, position, graphical, move_vectors, move_length)
+		super().__init__(PieceType.KING.value, team, position, graphical, move_vectors, move_length)
+
+	def get_has_moved(self):
+		return self.has_moved
+
+	def move(self, des):
+		self.has_moved = True
+		super().move(des)
 
 class Queen(Piece):
 
-	def __init__(self, is_white, position, graphical=True):
+	def __init__(self, team, position, graphical=True):
 		move_vectors = [
 			Directions.UP, 
 			Directions.UP_RIGHT,
@@ -120,11 +125,11 @@ class Queen(Piece):
 			Directions.UP_LEFT
 		]
 		move_length = -1
-		super().__init__(PieceType.QUEEN.value, is_white, position, graphical, move_vectors, move_length)
+		super().__init__(PieceType.QUEEN.value, team, position, graphical, move_vectors, move_length)
 
 class Bishop(Piece):
 
-	def __init__(self, is_white, position, graphical=True):
+	def __init__(self, team, position, graphical=True):
 		move_vectors = [ 
 			Directions.UP_RIGHT,
 			Directions.DOWN_RIGHT,
@@ -132,11 +137,12 @@ class Bishop(Piece):
 			Directions.UP_LEFT
 		]
 		move_length = -1
-		super().__init__(PieceType.BISHOP.value, is_white, position, graphical, move_vectors, move_length)
+		super().__init__(PieceType.BISHOP.value, team, position, graphical, move_vectors, move_length)
 
 class Rook(Piece):
 
-	def __init__(self, is_white, position, graphical=True):
+	def __init__(self, team, position, graphical=True):
+		self.has_moved = False
 		move_vectors = [ 
 			Directions.UP,
 			Directions.RIGHT,
@@ -144,26 +150,33 @@ class Rook(Piece):
 			Directions.LEFT,
 		]
 		move_length = -1
-		super().__init__(PieceType.ROOK.value, is_white, position, graphical, move_vectors, move_length)
+		super().__init__(PieceType.ROOK.value, team, position, graphical, move_vectors, move_length)
+
+	def get_has_moved(self):
+		return self.has_moved
+
+	def move(self, des):
+		self.has_moved = True
+		super().move(des)
 
 class Knight(Piece):
 
-	def __init__(self, is_white, position, graphical=True):
+	def __init__(self, team, position, graphical=True):
 		move_vectors = Directions.KNIGHT_VECTORS
 		move_length = 1
-		super().__init__(PieceType.KNIGHT.value, is_white, position, graphical, move_vectors, move_length)
+		super().__init__(PieceType.KNIGHT.value, team, position, graphical, move_vectors, move_length)
 
 class Pawn(Piece):
 
-	def __init__(self, is_white, position, graphical=True):
+	def __init__(self, team, position, graphical=True):
 		self.has_moved = False
 		move_vectors = []
-		if (is_white):
+		if (team == PieceType.WHITE.value):
 			move_vectors = [Directions.UP]
 		else :
 			move_vectors = [Directions.DOWN]
 		move_length = 2
-		super().__init__(PieceType.PAWN.value, is_white, position, graphical, move_vectors, move_length)
+		super().__init__(PieceType.PAWN.value, team, position, graphical, move_vectors, move_length)
 
 	def get_has_moved(self):
 		return self.has_moved

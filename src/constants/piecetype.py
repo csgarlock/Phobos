@@ -21,3 +21,6 @@ class PieceType(Enum):
 	BLACK_KNIGHT = 9
 	BLACK_ROOK = 10
 	BLACK_PAWN = 11
+	
+	WHITE = 0
+	BLACK = 1

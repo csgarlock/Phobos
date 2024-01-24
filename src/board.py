@@ -1,6 +1,7 @@
 import sys, pygame
 from constants.piecetype import PieceType
 from constants.directions import Directions
+from constants.specialmoves import SpecialMoves
 from piece import *
 from move import Move
 
@@ -10,32 +11,34 @@ class Board:
 	def __init__(self, starting = True, Board = None):
 		self.pieces = []
 		self.board_arr = [[None for i in range(8)] for j in range(8)]
+		self.turn = PieceType.WHITE.value
 		if (starting):
+
 			#Fill the default starting board
-			self.pieces.append(Rook(False, [0, 0]))
-			self.pieces.append(Rook(False, [7, 0]))
-			self.pieces.append(Rook(True, [0, 7]))
-			self.pieces.append(Rook(True, [7, 7]))
+			self.pieces.append(Rook(PieceType.BLACK.value, [0, 0]))
+			self.pieces.append(Rook(PieceType.BLACK.value, [7, 0]))
+			self.pieces.append(Rook(PieceType.WHITE.value, [0, 7]))
+			self.pieces.append(Rook(PieceType.WHITE.value, [7, 7]))
 
-			self.pieces.append(Knight(False, [1, 0]))
-			self.pieces.append(Knight(False, [6, 0]))
-			self.pieces.append(Knight(True, [1, 7]))
-			self.pieces.append(Knight(True, [6, 7]))
+			self.pieces.append(Knight(PieceType.BLACK.value, [1, 0]))
+			self.pieces.append(Knight(PieceType.BLACK.value, [6, 0]))
+			self.pieces.append(Knight(PieceType.WHITE.value, [1, 7]))
+			self.pieces.append(Knight(PieceType.WHITE.value, [6, 7]))
 
-			self.pieces.append(Bishop(False, [2, 0]))
-			self.pieces.append(Bishop(False, [5, 0]))
-			self.pieces.append(Bishop(True, [2, 7]))
-			self.pieces.append(Bishop(True, [5, 7]))
+			self.pieces.append(Bishop(PieceType.BLACK.value, [2, 0]))
+			self.pieces.append(Bishop(PieceType.BLACK.value, [5, 0]))
+			self.pieces.append(Bishop(PieceType.WHITE.value, [2, 7]))
+			self.pieces.append(Bishop(PieceType.WHITE.value, [5, 7]))
 
-			self.pieces.append(Queen(False, [3, 0]))
-			self.pieces.append(Queen(True, [3, 7]))
+			self.pieces.append(Queen(PieceType.BLACK.value, [3, 0]))
+			self.pieces.append(Queen(PieceType.WHITE.value, [3, 7]))
 
-			self.pieces.append(King(False, [4, 0]))
-			self.pieces.append(King(True, [4, 7]))
+			self.pieces.append(King(PieceType.BLACK.value, [4, 0]))
+			self.pieces.append(King(PieceType.WHITE.value, [4, 7]))
 
 			for i in range(0, 8):
-				self.pieces.append(Pawn(False, [i, 1]))
-				self.pieces.append(Pawn(True, [i, 6]))
+				self.pieces.append(Pawn(PieceType.BLACK.value, [i, 1]))
+				self.pieces.append(Pawn(PieceType.WHITE.value, [i, 6]))
 		else:
 			pass
 
@@ -49,23 +52,48 @@ class Board:
 	def get_piece_at(self, pos):
 		return self.board_arr[pos[1]][pos[0]]
 
+	def get_turn(self):
+		return self.turn
+
 	def try_move_piece(self, move):
 		for valid_move in self.get_all_moves():
-			print(valid_move)
 			if (move == valid_move):
-				piece = move.get_piece()
-				source = move.get_source()
-				self.board_arr[source[1]][source[0]] = None
-				des = move.get_des()
-				piece.move(des)
-				self.board_arr[des[1]][des[0]] = piece
-				self.moves = []
-				self.generated_moves = False
+				self.make_move(valid_move)
+				return
+
+	def make_move(self, move):
+		piece = move.get_piece()
+		source = move.get_source()
+		special_move = move.get_special_move()
+		special_piece = move.get_special_piece()
+		des = move.get_des()
+		if (special_move == SpecialMoves.NONE.value):
+			self.board_arr[source[1]][source[0]] = None
+			piece.move(des)
+			if (move.get_des_piece() is not None):
+				self.pieces.remove(move.get_des_piece())
+			self.board_arr[des[1]][des[0]] = piece
+		elif (special_move == SpecialMoves.SHORT_CASTLE.value or special_move == SpecialMoves.LONG_CASTLE.value):
+			self.board_arr[source[1]][source[0]] = None
+			piece.move(des)
+			self.board_arr[des[1]][des[0]] = piece
+			special_des = [0, 7*(1 - special_piece.get_team())]
+			if (special_move == SpecialMoves.SHORT_CASTLE.value):
+				special_des[0] = 5
+			else:
+				special_des[0] = 3
+			special_piece.move(special_des)
+			self.board_arr[special_des[1]][special_des[0]] = special_piece
+		self.moves = []
+		self.generated_moves = False
+		#Swithes whose turn it is
+		self.turn = 1 - self.turn
 
 	def get_all_moves(self):
 		if (not self.generated_moves):
 			for piece in self.pieces:
-				self.moves.extend(self.get_piece_moves(piece))
+				if (piece.get_team() == self.turn):
+					self.moves.extend(self.get_piece_moves(piece))
 			self.generated_moves = True
 		return self.moves
 
@@ -74,12 +102,24 @@ class Board:
 		moves = []
 		move_vectors = piece.get_move_vectors()
 		move_length = piece.get_move_length()
+		if (isinstance(piece, King)):
+			if (not piece.get_has_moved()):
+				right_castle_ray = self.cast_ray(piece, Directions.RIGHT, -1)
+				right_castle_des_piece = right_castle_ray[1]
+				if (isinstance(right_castle_des_piece, Rook)):
+					if (not right_castle_des_piece.get_has_moved()):
+						moves.append(Move(piece, piece_pos, [6, 7*(1 - piece.get_team())], None, SpecialMoves.SHORT_CASTLE.value, right_castle_des_piece))
+				left_castle_ray = self.cast_ray(piece, Directions.LEFT, -1)
+				left_castle_des_piece = left_castle_ray[1]
+				if (isinstance(left_castle_des_piece, Rook)):
+					if (not left_castle_des_piece.get_has_moved()):
+						moves.append(Move(piece, piece_pos, [2, 7*(1 - piece.get_team())], None, SpecialMoves.LONG_CASTLE.value, left_castle_des_piece))
 		for direction in move_vectors:
 			ray = self.cast_ray(piece, direction, move_length)
 			found_empties, des_piece = ray
 			for empty in found_empties:
 				moves.append(Move(piece, piece_pos, empty))
-			if (des_piece is not None):
+			if (des_piece is not None and not isinstance(piece, Pawn)):
 				if (piece.on_same_team(des_piece) == False):	
 					moves.append(Move(piece, piece_pos, des_piece.get_pos(), des_piece))
 		return moves
