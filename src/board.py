@@ -62,12 +62,19 @@ class Board:
 				return
 
 	def make_move(self, move):
+		print(move)
 		piece = move.get_piece()
 		source = move.get_source()
 		special_move = move.get_special_move()
 		special_piece = move.get_special_piece()
 		des = move.get_des()
 		if (special_move == SpecialMoves.NONE.value):
+			self.board_arr[source[1]][source[0]] = None
+			piece.move(des)
+			if (move.get_des_piece() is not None):
+				self.pieces.remove(move.get_des_piece())
+			self.board_arr[des[1]][des[0]] = piece
+		elif (special_move == SpecialMoves.PAWN_CAPTURE.value):
 			self.board_arr[source[1]][source[0]] = None
 			piece.move(des)
 			if (move.get_des_piece() is not None):
@@ -102,6 +109,23 @@ class Board:
 		moves = []
 		move_vectors = piece.get_move_vectors()
 		move_length = piece.get_move_length()
+		if (isinstance(piece, Pawn)):
+			attack_vectors = []
+			if (piece.get_team() == PieceType.WHITE.value):
+				attack_vectors = [Directions.UP_RIGHT, Directions.UP_LEFT]
+			else:
+				attack_vectors = [Directions.DOWN_RIGHT, Directions.DOWN_LEFT]
+			right_attack_ray = self.cast_ray(piece, attack_vectors[0], 1)
+			right_attack_des_piece = right_attack_ray[1]
+			if (right_attack_des_piece is not None):
+				if (not right_attack_des_piece.on_same_team(piece)):
+					moves.append(Move(piece, piece_pos, right_attack_des_piece.get_pos(), right_attack_des_piece, SpecialMoves.PAWN_CAPTURE.value))
+			left_attack_ray = self.cast_ray(piece, attack_vectors[1], 1)
+			left_attack_des_piece = left_attack_ray[1]
+			if (left_attack_des_piece is not None):
+				if (not left_attack_des_piece.on_same_team(piece)):
+					moves.append(Move(piece, piece_pos, left_attack_des_piece.get_pos(), left_attack_des_piece, SpecialMoves.PAWN_CAPTURE.value))
+
 		if (isinstance(piece, King)):
 			if (not piece.get_has_moved()):
 				right_castle_ray = self.cast_ray(piece, Directions.RIGHT, -1)

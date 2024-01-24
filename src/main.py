@@ -47,7 +47,6 @@ def main():
 					move_des_pos = loc_to_pos(event.pos)
 					move_des_piece = board.get_piece_at(move_des_pos)
 					board.try_move_piece(Move(held_piece, move_source_pos, move_des_pos, move_des_piece))
-					print(Move(held_piece, move_source_pos, move_des_pos))
 					held_piece = None
 
 			if (event.type == pygame.QUIT):

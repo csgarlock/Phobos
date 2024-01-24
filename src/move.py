@@ -12,7 +12,11 @@ class Move:
 		self.special_piece = special_piece
 
 	def __str__(self):
-		if (self.des_piece is not None):
+		if (self.special_move == SpecialMoves.SHORT_CASTLE.value):
+			return (str(self.piece) + " castles short")
+		elif(self.special_move == SpecialMoves.LONG_CASTLE.value):
+			return (str(self.piece) + " castles long")
+		elif (self.des_piece is not None):
 			return (str(self.piece) + " from " + str(self.source) + " to " + str(self.des) + " takes " + str(self.des_piece))
 		else:
 			return (str(self.piece) + " from " + str(self.source) + " to " + str(self.des))
