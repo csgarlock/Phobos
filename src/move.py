@@ -16,6 +16,8 @@ class Move:
 			return (str(self.piece) + " castles short")
 		elif(self.special_move == SpecialMoves.LONG_CASTLE.value):
 			return (str(self.piece) + " castles long")
+		elif(self.special_move == SpecialMoves.EN_PASSANT.value):
+			return (str(self.piece) + " from " + str(self.source) + " to " + str(self.des) + " en passants " + str(self.special_piece))
 		elif (self.des_piece is not None):
 			return (str(self.piece) + " from " + str(self.source) + " to " + str(self.des) + " takes " + str(self.des_piece))
 		else:

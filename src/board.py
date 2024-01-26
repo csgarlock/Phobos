@@ -12,6 +12,7 @@ class Board:
 		self.pieces = []
 		self.board_arr = [[None for i in range(8)] for j in range(8)]
 		self.turn = PieceType.WHITE.value
+		self.en_passant_target = None
 		if (starting):
 
 			#Fill the default starting board
@@ -91,6 +92,22 @@ class Board:
 				special_des[0] = 3
 			special_piece.move(special_des)
 			self.board_arr[special_des[1]][special_des[0]] = special_piece
+		elif (special_move == SpecialMoves.EN_PASSANT.value):
+			self.board_arr[source[1]][source[0]] = None
+			piece.move(des)
+			self.board_arr[des[1]][des[0]] = piece
+			special_piece_pos = special_piece.get_pos()
+			self.pieces.remove(special_piece)
+			self.board_arr[special_piece_pos[1]][special_piece_pos[0]] = None
+
+		if (isinstance(piece, Pawn)):
+			if (abs(source[1] - des[1]) == 2):
+				self.en_passant_target = piece
+				print(self.en_passant_target)
+			else:
+				self.en_passant_target = None
+		else:
+			self.en_passant_target = None
 		self.moves = []
 		self.generated_moves = False
 		#Swithes whose turn it is
@@ -125,6 +142,19 @@ class Board:
 			if (left_attack_des_piece is not None):
 				if (not left_attack_des_piece.on_same_team(piece)):
 					moves.append(Move(piece, piece_pos, left_attack_des_piece.get_pos(), left_attack_des_piece, SpecialMoves.PAWN_CAPTURE.value))
+
+			if(self.en_passant_target is not None):
+				en_passant_target_pos = self.en_passant_target.get_pos()
+				if (en_passant_target_pos[1] == piece_pos[1]):
+					en_passant_vector = []
+					if (en_passant_target_pos[0] == piece_pos[0] - 1):
+						en_passant_vector = (-1, piece.get_move_vectors()[0][1])
+					elif (en_passant_target_pos[0] == piece_pos[0] + 1):
+						en_passant_vector = (1, piece.get_move_vectors()[0][1])
+					if (en_passant_vector != []):
+						en_passant_des = [piece_pos[0] + en_passant_vector[0], piece_pos[1] + en_passant_vector[1]]
+						moves.append(Move(piece, piece_pos, en_passant_des, None, SpecialMoves.EN_PASSANT.value, self.en_passant_target))
+
 
 		if (isinstance(piece, King)):
 			if (not piece.get_has_moved()):
