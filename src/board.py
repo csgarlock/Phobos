@@ -44,7 +44,7 @@ class Board:
 		else:
 			pass
 
-		self.team_info = [TeamInfo(PieceType.WHITE.value, board), TeamInfo(PieceType.BLACK.value, board)]
+		self.team_info = [TeamInfo(PieceType.WHITE.value, self), TeamInfo(PieceType.BLACK.value, self)]
 
 		self.generated_moves = False
 		self.moves = []
