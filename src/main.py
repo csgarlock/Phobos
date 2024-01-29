@@ -3,6 +3,7 @@ import math
 import spritesheet
 from constants.piecetype import PieceType
 from constants.directions import Directions
+from constants.specialmoves import SpecialMoves
 from piece import *
 from board import Board
 from move import Move
@@ -13,10 +14,12 @@ def main():
 	size = width, height = 640, 640
 	screen = pygame.display.set_mode(size)
 
+	move_surface = pygame.Surface((width,height), pygame.SRCALPHA)
+
 	Piece.setup_sprites()
 
 	board_imag = pygame.image.load("..\\res\\chessboard.png")
-	board_rec = board_imag.get_rect()
+	board_rec = board_imag.get_rect()	
 
 	board = Board(True)
 
@@ -55,7 +58,27 @@ def main():
 		screen.fill("white")
 
 		screen.blit(board_imag, board_rec)
-		board.blit_pieces(screen, mouse_pos, held_piece)
+		for piece in board.get_pieces():
+			if (piece is held_piece):
+				pass
+			else:
+				screen.blit(piece.get_image(), piece.get_rect())
+		if (held_piece is not None):
+			rect = pygame.Rect(0, 0, 80, 80)
+			rect.center = (mouse_pos[0], mouse_pos[1])
+			screen.blit(held_piece.get_image(), rect)
+
+		move_surface.fill((0, 0, 0, 0))
+		if (held_piece is not None):
+			for move in board.get_all_moves():
+				if (move.get_piece() == held_piece):
+					des = move.get_des()
+					circle_color = pygame.Color(100, 100, 100, 100)
+					if (move.get_des_piece() is not None or move.get_special_move() == SpecialMoves.EN_PASSANT.value):
+						circle_color = pygame.Color(242, 43, 0, 100)
+					pygame.draw.circle(move_surface, circle_color, (40 + (80 * des[0]), 40 + (80 * des[1])), 20)
+
+		screen.blit(move_surface, (0, 0))
 
 		pygame.display.flip()
 

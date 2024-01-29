@@ -2,6 +2,7 @@ import sys, pygame
 from constants.piecetype import PieceType
 from constants.directions import Directions
 from constants.specialmoves import SpecialMoves
+from teaminfo import TeamInfo
 from piece import *
 from move import Move
 
@@ -43,6 +44,8 @@ class Board:
 		else:
 			pass
 
+		self.team_info = [TeamInfo(PieceType.WHITE.value, board), TeamInfo(PieceType.BLACK.value, board)]
+
 		self.generated_moves = False
 		self.moves = []
 
@@ -52,6 +55,9 @@ class Board:
 
 	def get_piece_at(self, pos):
 		return self.board_arr[pos[1]][pos[0]]
+
+	def get_pieces(self):
+		return self.pieces
 
 	def get_turn(self):
 		return self.turn
@@ -108,6 +114,7 @@ class Board:
 				self.en_passant_target = None
 		else:
 			self.en_passant_target = None
+		self.team_info[self.turn].update_from_move(move)
 		self.moves = []
 		self.generated_moves = False
 		#Swithes whose turn it is
@@ -176,6 +183,7 @@ class Board:
 			if (des_piece is not None and not isinstance(piece, Pawn)):
 				if (piece.on_same_team(des_piece) == False):	
 					moves.append(Move(piece, piece_pos, des_piece.get_pos(), des_piece))
+
 		return moves
 
 	def cast_ray(self, piece, direction, move_length):
@@ -203,14 +211,3 @@ class Board:
 			return False
 		return True
 
-
-	def blit_pieces(self, screen, mouse_pos, held_piece):
-		for piece in self.pieces:
-			if (piece is held_piece):
-				pass
-			else:
-				screen.blit(piece.get_image(), piece.get_rect())
-		if (held_piece is not None):
-			rect = pygame.Rect(0, 0, 80, 80)
-			rect.center = (mouse_pos[0], mouse_pos[1])
-			screen.blit(held_piece.get_image(), rect)
