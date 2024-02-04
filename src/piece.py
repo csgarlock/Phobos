@@ -24,6 +24,7 @@ class Piece():
 		self.team = team
 		self.move_vectors = move_vectors
 		self.move_length = move_length
+		self.key = id(self)
 		if (graphical):
 			self.rect = pygame.Rect(position[0] * 80, position[1] * 80, 80, 80)
 			if (self.team == PieceType.WHITE.value):
@@ -85,6 +86,9 @@ class Piece():
 
 	def get_piece_type(self):
 		return (self.piece_type, self.team)
+
+	def get_key(self):
+		return self.key
 
 
 class King(Piece):

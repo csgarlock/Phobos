@@ -1,4 +1,3 @@
-from piece import Piece
 from constants.specialmoves import SpecialMoves
 
 class Move:

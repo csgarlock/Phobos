@@ -1,8 +1,7 @@
-import sys, pygame
 from constants.piecetype import PieceType
 from constants.directions import Directions
 from constants.specialmoves import SpecialMoves
-from teaminfo import TeamInfo
+from piecerelationstable import PieceRelationsTable
 from piece import *
 from move import Move
 
@@ -44,7 +43,7 @@ class Board:
 		else:
 			pass
 
-		self.team_info = [TeamInfo(PieceType.WHITE.value, self), TeamInfo(PieceType.BLACK.value, self)]
+		self.piece_relations = PieceRelations(self)
 
 		self.generated_moves = False
 		self.moves = []
@@ -114,7 +113,7 @@ class Board:
 				self.en_passant_target = None
 		else:
 			self.en_passant_target = None
-		self.team_info[self.turn].update_from_move(move)
+		self.piece_relations.update_from_move(move)
 		self.moves = []
 		self.generated_moves = False
 		#Swithes whose turn it is
@@ -204,6 +203,9 @@ class Board:
 		else:
 			return (empty_positions, None)
 		return (empty_positions, self.board_arr[current_position[1]][current_position[0]])
+
+	def look_directions(self, piece, directions, distance):
+		pass
 
 
 	def in_bounds(self, position):

@@ -22,6 +22,7 @@ def main():
 	board_rec = board_imag.get_rect()	
 
 	board = Board(True)
+	print(board.piece_relations.pins)
 
 	held_piece = None
 	mouse_pos = [0, 0]
