@@ -7,6 +7,7 @@ from constants.specialmoves import SpecialMoves
 from piece import *
 from board import Board
 from move import Move
+import time
 
 def main():
 	pygame.init()
@@ -22,7 +23,6 @@ def main():
 	board_rec = board_imag.get_rect()	
 
 	board = Board(True)
-	print(board.piece_relations.pins)
 
 	held_piece = None
 	mouse_pos = [0, 0]
@@ -42,6 +42,18 @@ def main():
 						if (piece_at_pos.get_team() == board.get_turn()):
 							held_piece = piece_at_pos
 							piece_moves = board.get_piece_moves(held_piece)
+							print(board.piece_relations.pins)
+							pins = board.piece_relations.pins[held_piece.get_key()]
+							print("new check")
+							print("attacker")
+							for pin in pins[0]:
+								print (hide)
+							print("pinned")
+							for pin in pins[1]:
+								print (hide)
+							print("threatened")
+							for pin in pins[2]:
+								print (hide)
 					else:
 						held_piece = None
 
@@ -50,7 +62,10 @@ def main():
 					mouse_pos = event.pos
 					move_des_pos = loc_to_pos(event.pos)
 					move_des_piece = board.get_piece_at(move_des_pos)
+					start = time.perf_counter()
 					board.try_move_piece(Move(held_piece, move_source_pos, move_des_pos, move_des_piece))
+					end = time.perf_counter()
+					print(start - end)
 					held_piece = None
 
 			if (event.type == pygame.QUIT):

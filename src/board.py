@@ -4,6 +4,7 @@ from constants.specialmoves import SpecialMoves
 from piecerelationstable import PieceRelationsTable
 from piece import *
 from move import Move
+import time
 
 
 class Board:
@@ -43,14 +44,14 @@ class Board:
 		else:
 			pass
 
-		self.piece_relations = PieceRelations(self)
-
 		self.generated_moves = False
 		self.moves = []
 
 		for piece in self.pieces:
 			position = piece.get_pos()
 			self.board_arr[position[1]][position[0]] = piece
+
+		self.piece_relations = PieceRelationsTable(self)
 
 	def get_piece_at(self, pos):
 		return self.board_arr[pos[1]][pos[0]]
@@ -68,7 +69,6 @@ class Board:
 				return
 
 	def make_move(self, move):
-		print(move)
 		piece = move.get_piece()
 		source = move.get_source()
 		special_move = move.get_special_move()
@@ -205,7 +205,29 @@ class Board:
 		return (empty_positions, self.board_arr[current_position[1]][current_position[0]])
 
 	def look_directions(self, piece, directions, distance):
-		pass
+		results = []
+		for direction in directions:
+			d_x, d_y = direction
+			current_position = [piece.get_pos()[0] + d_x, piece.get_pos()[1] + d_y]
+			distance_traveled = 0
+			dir_result = (None, 0)
+			found_piece = True
+			if (self.in_bounds(current_position) == True):
+				while (self.board_arr[current_position[1]][current_position[0]] is None):
+					distance_traveled += 1
+					current_position[0] += d_x
+					current_position[1] += d_y
+					if (distance_traveled == distance):
+						found_piece = False
+						break
+					if (self.in_bounds(current_position) == False):
+						found_piece = False
+						break
+				if(found_piece == True):
+					dir_result = (self.board_arr[current_position[1]][current_position[0]], direction, distance_traveled + 1)
+					results.append(dir_result)
+		return results
+
 
 
 	def in_bounds(self, position):

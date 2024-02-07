@@ -48,7 +48,7 @@ class Piece():
 			piece = "Rook"
 		else:
 			piece = "Pawn"
-		return color + " " + piece
+		return color + " " + piece + " at " + str(self.position)
 
 	def __eq__(self, other):
 		if not isinstance(other, Piece):
@@ -65,7 +65,13 @@ class Piece():
 	def get_move_vectors(self):
 		return self.move_vectors
 
+	def get_attack_vectors(self):
+		return self.move_vectors
+
 	def get_move_length(self):
+		return self.move_length
+
+	def get_attack_length(self):
 		return self.move_length
 
 	def on_same_team(self, other):
@@ -180,6 +186,13 @@ class Pawn(Piece):
 		else :
 			move_vectors = [Directions.DOWN]
 		move_length = 2
+		self.attack_vectors = []
+		self.attack_length = 1
+		if (team == PieceType.WHITE.value):
+			self.attack_vectors = [Directions.UP_RIGHT, Directions.UP_LEFT]
+		else:
+			self.attack_vectors = [Directions.DOWN_RIGHT, Directions.DOWN_LEFT]
+
 		super().__init__(PieceType.PAWN.value, team, position, graphical, move_vectors, move_length)
 
 	def get_has_moved(self):
@@ -190,5 +203,8 @@ class Pawn(Piece):
 		self.move_length = 1
 		super().move(des)
 
-	def get_move_length(self):
-		return self.move_length
+	def get_attack_vectors(self):
+		return self.attack_vectors
+
+	def get_attack_length(self):
+		return self.attack_length

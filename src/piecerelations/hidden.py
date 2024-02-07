@@ -5,6 +5,10 @@ class Hidden:
 		self.threatened = threatened
 		self.direction = direction
 
+
+	def __str__(self):
+		return str(self.masked) + " Attacking " + str(self.threatened) + " concealed by " + str(self.concealer)
+
 	def get_masked(self):
 		return self.masked
 

@@ -5,6 +5,9 @@ class Pin:
 		self.attacked = attacked
 		self.direction = direction
 
+	def __str__(self):
+		return str(self.threat) + " Attacking " + str(self.attacked) + " pinned by " + str(self.pinned)
+
 	def get_threat(self):
 		return self.threat
 
