@@ -1,2 +1,2 @@
 # Phobos
-### Programmable Hierarchical Operations Bot for Optimal Strategy
+### Python Hierarchical Operations Bot for Optimal Strategy
